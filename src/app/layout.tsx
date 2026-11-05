@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
+const sofiaPro = localFont({
+  variable: "--font-sofia-pro",
+  src: [
+    { path: "../fonts/SofiaPro-Regular.otf", weight: "400" },
+    { path: "../fonts/SofiaPro-Medium.otf", weight: "500" },
+    { path: "../fonts/SofiaPro-SemiBold.otf", weight: "600" },
+    { path: "../fonts/SofiaPro-Bold.otf", weight: "700" },
+  ],
 });
 
 export const metadata: Metadata = {
@@ -14,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${manrope.variable} h-full antialiased`}>
+    <html lang="en" className={`${sofiaPro.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import PlaceholderVideo from "./PlaceholderVideo";
 import StageVideo from "./StageVideo";
 
-type Stage = "damaged" | "shampoo" | "healing" | "result";
+type Stage = "damaged" | "rewind" | "result";
 
 function RewindIcon() {
   return (
@@ -79,8 +79,7 @@ export default function Experience() {
     timer.current = setTimeout(() => setLayers([next]), FADE_MS + 100);
   }, []);
 
-  const goShampoo = () => goTo("shampoo");
-  const goHealing = useCallback(() => goTo("healing"), [goTo]);
+  const goRewind = () => goTo("rewind");
   const goResult = useCallback(() => goTo("result"), [goTo]);
   const goDamaged = () => goTo("damaged");
 
@@ -94,18 +93,10 @@ export default function Experience() {
             fallback={<PlaceholderVideo variant="damaged" />}
           />
         );
-      case "shampoo":
+      case "rewind":
         return (
           <StageVideo
-            src="/videos/shampoo.mp4"
-            onEnded={goHealing}
-            fallback={<PlaceholderVideo variant="healing" durationSeconds={4} onEnded={goHealing} />}
-          />
-        );
-      case "healing":
-        return (
-          <StageVideo
-            src="/videos/healing.mp4"
+            src="/videos/rewind.mp4"
             onEnded={goResult}
             fallback={<PlaceholderVideo variant="healing" onEnded={goResult} />}
           />
@@ -154,7 +145,7 @@ export default function Experience() {
         {stage === "damaged" && (
           <>
             <button
-              onClick={goShampoo}
+              onClick={goRewind}
               aria-label="Tap to rewind"
               className="flex h-16 w-16 items-center justify-center rounded-full bg-dove-gold text-dove-navy shadow-xl transition hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dove-navy"
             >
