@@ -34,7 +34,7 @@ export async function startAmbient() {
   if (ambient) return;
   const c = getCtx();
   void c.resume().catch(() => {});
-  const buf = await load("/audio/music-loop.wav");
+  const buf = await load("/audio/music-loop-2.wav");
   if (!ambientWanted || ambient) return;
   const src = c.createBufferSource();
   src.buffer = buf;
