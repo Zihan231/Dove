@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { isAudioRunning, onAudioStateChange, playRewind, startAmbient, stopAmbient, unlockAudio } from "@/lib/sound";
+import { playRewind, startAmbient, stopAmbient, unlockAudio } from "@/lib/sound";
 import PlaceholderVideo from "./PlaceholderVideo";
 import StageVideo from "./StageVideo";
 
@@ -59,21 +59,16 @@ export default function Experience() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [rewindDone, setRewindDone] = useState(false);
-  const [soundBlocked, setSoundBlocked] = useState(false);
   const stage = layers[layers.length - 1];
 
   // Full track loops on the damaged screen. Browsers hold audio until a gesture, so any tap/key unlocks it.
   useEffect(() => {
     if (stage !== "damaged") return;
     void startAmbient();
-    const sync = () => setSoundBlocked(!isAudioRunning());
-    sync();
-    const off = onAudioStateChange(sync);
     const events = ["pointerdown", "touchend", "click", "keydown"] as const;
     const unlock = () => void unlockAudio();
     events.forEach((e) => window.addEventListener(e, unlock));
     return () => {
-      off();
       events.forEach((e) => window.removeEventListener(e, unlock));
     };
   }, [stage]);
@@ -152,11 +147,6 @@ export default function Experience() {
       <div className="absolute inset-x-0 bottom-10 flex flex-col items-center gap-3">
         {stage === "damaged" && (
           <>
-            {soundBlocked && (
-              <p className="rounded-full bg-white/85 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-dove-navy">
-                Tap anywhere for sound
-              </p>
-            )}
             <button
               onClick={goRewind}
               aria-label="Tap to rewind"
