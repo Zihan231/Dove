@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { isAudioRunning, onAudioStateChange, playRewind, startAmbient, stopAmbient, unlockAudio } from "@/lib/sound";
 import PlaceholderVideo from "./PlaceholderVideo";
 import StageVideo from "./StageVideo";
 
-type Stage = "damaged" | "rewind" | "result";
+type Stage = "damaged" | "rewind";
 
 function RewindIcon() {
   return (
@@ -58,7 +59,25 @@ export default function Experience() {
   const [layers, setLayers] = useState<Stage[]>(["damaged"]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [rewindDone, setRewindDone] = useState(false);
+  const [soundBlocked, setSoundBlocked] = useState(false);
   const stage = layers[layers.length - 1];
+
+  // Full track loops on the damaged screen. Browsers hold audio until a gesture, so any tap/key unlocks it.
+  useEffect(() => {
+    if (stage !== "damaged") return;
+    void startAmbient();
+    const sync = () => setSoundBlocked(!isAudioRunning());
+    sync();
+    const off = onAudioStateChange(sync);
+    const events = ["pointerdown", "touchend", "click", "keydown"] as const;
+    const unlock = () => void unlockAudio();
+    events.forEach((e) => window.addEventListener(e, unlock));
+    return () => {
+      off();
+      events.forEach((e) => window.removeEventListener(e, unlock));
+    };
+  }, [stage]);
 
   useEffect(() => {
     const onChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -79,16 +98,24 @@ export default function Experience() {
     timer.current = setTimeout(() => setLayers([next]), FADE_MS + 100);
   }, []);
 
-  const goRewind = () => goTo("rewind");
-  const goResult = useCallback(() => goTo("result"), [goTo]);
-  const goDamaged = () => goTo("damaged");
+  const goRewind = () => {
+    stopAmbient();
+    void playRewind();
+    setRewindDone(false);
+    goTo("rewind");
+  };
+  const goDamaged = () => {
+    goTo("damaged");
+    void startAmbient();
+  };
+  const onRewindEnded = useCallback(() => setRewindDone(true), []);
 
   const renderStage = (s: Stage) => {
     switch (s) {
       case "damaged":
         return (
           <StageVideo
-            src="/videos/damaged-part.mp4"
+            src="/videos/v1-loop.mp4"
             loop
             fallback={<PlaceholderVideo variant="damaged" />}
           />
@@ -96,17 +123,10 @@ export default function Experience() {
       case "rewind":
         return (
           <StageVideo
-            src="/videos/rewind.mp4"
-            onEnded={goResult}
-            fallback={<PlaceholderVideo variant="healing" onEnded={goResult} />}
-          />
-        );
-      case "result":
-        return (
-          <StageVideo
-            src="/videos/silky.mp4"
-            loop
-            fallback={<PlaceholderVideo variant="healing" />}
+            src="/videos/v2-healing.mp4"
+            muted={false}
+            onEnded={onRewindEnded}
+            fallback={<PlaceholderVideo variant="healing" onEnded={onRewindEnded} />}
           />
         );
     }
@@ -144,6 +164,11 @@ export default function Experience() {
       <div className="absolute inset-x-0 bottom-10 flex flex-col items-center gap-3">
         {stage === "damaged" && (
           <>
+            {soundBlocked && (
+              <p className="rounded-full bg-white/85 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-dove-navy">
+                Tap anywhere for sound
+              </p>
+            )}
             <button
               onClick={goRewind}
               aria-label="Tap to rewind"
@@ -156,7 +181,7 @@ export default function Experience() {
             </p>
           </>
         )}
-        {stage === "result" && (
+        {stage === "rewind" && rewindDone && (
           <>
             <button
               onClick={goDamaged}
