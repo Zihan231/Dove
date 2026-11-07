@@ -74,7 +74,7 @@ function load(url: string) {
 export async function playPart2() {
   const c = getCtx();
   if (c.state !== "running") await c.resume().catch(() => {});
-  const buf = await load("/audio/part2.wav");
+  const buf = await load("/audio/part2-long.wav");
   stopPart2();
   const src = c.createBufferSource();
   src.buffer = buf;
