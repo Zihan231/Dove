@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { playRewind, startAmbient, stopAmbient, unlockAudio } from "@/lib/sound";
+import { playPart2, stopPart2, startAmbient, stopAmbient, unlockAudio } from "@/lib/sound";
 import PlaceholderVideo from "./PlaceholderVideo";
 import StageVideo from "./StageVideo";
 
@@ -94,11 +94,12 @@ export default function Experience() {
 
   const goRewind = () => {
     stopAmbient();
-    void playRewind();
+    void playPart2();
     setRewindDone(false);
     goTo("rewind");
   };
   const goDamaged = () => {
+    stopPart2();
     goTo("damaged");
     void startAmbient();
   };
@@ -118,7 +119,6 @@ export default function Experience() {
         return (
           <StageVideo
             src="/videos/v2-healing.mp4"
-            muted={false}
             onEnded={onRewindEnded}
             fallback={<PlaceholderVideo variant="healing" onEnded={onRewindEnded} />}
           />

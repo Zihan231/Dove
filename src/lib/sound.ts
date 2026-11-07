@@ -2,6 +2,7 @@ let ctx: AudioContext | null = null;
 const buffers = new Map<string, Promise<AudioBuffer>>();
 let ambient: { src: AudioBufferSourceNode; gain: GainNode } | null = null;
 let ambientWanted = false;
+let part2: AudioBufferSourceNode | null = null;
 
 const listeners = new Set<() => void>();
 
@@ -34,7 +35,7 @@ export async function startAmbient() {
   if (ambient) return;
   const c = getCtx();
   void c.resume().catch(() => {});
-  const buf = await load("/audio/music-loop-2.wav");
+  const buf = await load("/audio/part1-loop-3.wav");
   if (!ambientWanted || ambient) return;
   const src = c.createBufferSource();
   src.buffer = buf;
@@ -69,12 +70,22 @@ function load(url: string) {
   return p;
 }
 
-export async function playRewind() {
+// Soundtrack for the healing video; starts together with it.
+export async function playPart2() {
   const c = getCtx();
   if (c.state !== "running") await c.resume().catch(() => {});
-  const buf = await load("/audio/rewind.wav");
+  const buf = await load("/audio/part2.wav");
+  stopPart2();
   const src = c.createBufferSource();
   src.buffer = buf;
   src.connect(c.destination);
   src.start();
+  part2 = src;
+}
+
+export function stopPart2() {
+  try {
+    part2?.stop();
+  } catch {}
+  part2 = null;
 }
