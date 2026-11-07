@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { isAudioRunning, onAudioStateChange, playRewind, startAmbient, stopAmbient, unlockAudio } from "@/lib/sound";
 import PlaceholderVideo from "./PlaceholderVideo";
@@ -139,17 +138,6 @@ export default function Experience() {
           {renderStage(s)}
         </Layer>
       ))}
-
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center bg-gradient-to-b from-white/90 to-transparent px-4 pb-10 pt-4">
-        <Image
-          src="/brand/lockup.svg"
-          alt="Dove Rewind"
-          width={260}
-          height={160}
-          className="h-28 w-auto sm:h-36"
-          priority
-        />
-      </div>
 
       {!isFullscreen && (
         <button
