@@ -134,7 +134,7 @@ export default function Experience() {
         </Layer>
       ))}
 
-      {!isFullscreen && (
+      {!isFullscreen && !process.env.NEXT_PUBLIC_KIOSK && (
         <button
           onClick={enterFullscreen}
           aria-label="Full screen"

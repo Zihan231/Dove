@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:static": "cross-env KIOSK=1 NEXT_PUBLIC_KIOSK=1 next build",
+    "kiosk": "npm run build:static && electron .",
+    "dist:kiosk": "npm run build:static && electron-builder --win portable"
   },
   "dependencies": {
     "next": "16.4.3",
@@ -18,9 +21,32 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^10.1.0",
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "main": "electron/main.js",
+  "build": {
+    "appId": "com.xrinteractive.dovekiosk",
+    "productName": "Dove Rewind Kiosk",
+    "directories": {
+      "output": "dist-kiosk"
+    },
+    "files": [
+      "electron/**",
+      "out/**",
+      "package.json",
+      "!node_modules/**"
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "portable": {
+      "artifactName": "DoveRewindKiosk.exe"
+    }
   }
 }
