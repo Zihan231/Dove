@@ -110,7 +110,7 @@ export default function Experience() {
       case "damaged":
         return (
           <StageVideo
-            src="/videos/v1-loop-3.mp4"
+            src="/videos/v1-loop-4.mp4"
             loop
             fallback={<PlaceholderVideo variant="damaged" />}
           />
@@ -118,7 +118,7 @@ export default function Experience() {
       case "rewind":
         return (
           <StageVideo
-            src="/videos/v2-healing-3.mp4"
+            src="/videos/v2-healing-4.mp4"
             onEnded={onRewindEnded}
             fallback={<PlaceholderVideo variant="healing" onEnded={onRewindEnded} />}
           />
