@@ -42,3 +42,4 @@ next-env.d.ts
 
 # kiosk build
 /dist-kiosk/
+/dist-kiosk2/
