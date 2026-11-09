@@ -9,7 +9,7 @@ type Stage = "damaged" | "rewind";
 
 function RewindIcon() {
   return (
-    <svg viewBox="0 0 24 16" className="h-6 w-9" fill="currentColor" aria-hidden>
+    <svg viewBox="0 0 24 16" className="h-[38%] w-[56%]" fill="currentColor" aria-hidden>
       <path d="M12 0v16L0 8zM24 0v16L12 8z" />
     </svg>
   );
@@ -17,7 +17,7 @@ function RewindIcon() {
 
 function HomeIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-8 w-8" fill="currentColor" aria-hidden>
+    <svg viewBox="0 0 24 24" className="h-[50%] w-[50%]" fill="currentColor" aria-hidden>
       <path d="M12 3 2 12h3v8h5v-5h4v5h5v-8h3z" />
     </svg>
   );
@@ -144,17 +144,17 @@ export default function Experience() {
         </button>
       )}
 
-      <div className="absolute inset-x-0 bottom-10 flex flex-col items-center gap-3">
+      <div className="absolute inset-x-0 bottom-[clamp(2.5rem,8vmin,10rem)] flex flex-col items-center gap-[clamp(0.75rem,2vmin,2.5rem)]">
         {stage === "damaged" && (
           <>
             <button
               onClick={goRewind}
               aria-label="Tap to rewind"
-              className="flex h-16 w-16 items-center justify-center rounded-full bg-dove-gold text-dove-navy shadow-xl transition hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dove-navy"
+              className="flex h-[clamp(4rem,12vmin,14rem)] w-[clamp(4rem,12vmin,14rem)] items-center justify-center rounded-full bg-dove-gold text-dove-navy shadow-xl transition hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dove-navy"
             >
               <RewindIcon />
             </button>
-            <p className="rounded-full bg-white/85 px-4 py-1.5 text-sm font-semibold uppercase tracking-[0.25em] text-dove-navy">
+            <p className="rounded-full bg-white/85 px-[clamp(1rem,3vmin,3rem)] py-[clamp(0.375rem,1vmin,1rem)] text-[clamp(0.875rem,2.6vmin,3rem)] font-semibold uppercase tracking-[0.25em] text-dove-navy">
               Tap to rewind
             </p>
           </>
@@ -164,11 +164,11 @@ export default function Experience() {
             <button
               onClick={goDamaged}
               aria-label="Go home"
-              className="flex h-16 w-16 items-center justify-center rounded-full bg-dove-gold text-dove-navy shadow-xl transition hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dove-navy"
+              className="flex h-[clamp(4rem,12vmin,14rem)] w-[clamp(4rem,12vmin,14rem)] items-center justify-center rounded-full bg-dove-gold text-dove-navy shadow-xl transition hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dove-navy"
             >
               <HomeIcon />
             </button>
-            <p className="rounded-full bg-white/85 px-4 py-1.5 text-sm font-semibold uppercase tracking-[0.25em] text-dove-navy">
+            <p className="rounded-full bg-white/85 px-[clamp(1rem,3vmin,3rem)] py-[clamp(0.375rem,1vmin,1rem)] text-[clamp(0.875rem,2.6vmin,3rem)] font-semibold uppercase tracking-[0.25em] text-dove-navy">
               Tap to go home
             </p>
           </>
