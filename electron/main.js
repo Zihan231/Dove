@@ -1,7 +1,8 @@
-const { app, BrowserWindow, globalShortcut } = require("electron");
+const { app, BrowserWindow, globalShortcut, powerSaveBlocker } = require("electron");
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const { pipeline } = require("stream");
 
 // Allow the music to start without a tap.
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");
@@ -21,6 +22,12 @@ const MIME = {
   ".woff2": "font/woff2",
   ".txt": "text/plain; charset=utf-8",
 };
+
+// Streams a file to the response. pipeline() destroys the file stream when the client disconnects
+// (Chromium aborts video range requests all the time); a bare .pipe() leaked them until requests hung.
+function sendFile(res, file, options) {
+  pipeline(fs.createReadStream(file, options), res, () => {});
+}
 
 // Local server so video seeking (range requests) and absolute asset paths work offline.
 function startServer() {
@@ -43,10 +50,10 @@ function startServer() {
         "Accept-Ranges": "bytes",
         "Content-Length": end - start + 1,
       });
-      fs.createReadStream(file, { start, end }).pipe(res);
+      sendFile(res, file, { start, end });
     } else {
       res.writeHead(200, { "Content-Type": type, "Content-Length": size, "Accept-Ranges": "bytes" });
-      fs.createReadStream(file).pipe(res);
+      sendFile(res, file);
     }
   });
   return new Promise((resolve) => server.listen(0, "127.0.0.1", () => resolve(server.address().port)));
@@ -62,6 +69,17 @@ async function createWindow() {
     webPreferences: { backgroundThrottling: false },
   });
   win.setMenuBarVisibility(false);
+
+  // Self-healing: reload if the page or the GPU/video pipeline dies or hangs.
+  const reload = () => {
+    if (!win.isDestroyed()) win.webContents.reloadIgnoringCache();
+  };
+  win.webContents.on("render-process-gone", reload);
+  win.webContents.on("unresponsive", reload);
+  win.webContents.on("did-fail-load", () => setTimeout(reload, 3000));
+  app.on("child-process-gone", (_e, details) => {
+    if (details.type === "GPU") reload();
+  });
   win.webContents.on("before-input-event", (e, input) => {
     if (input.type === "keyDown" && input.key === "F5") e.preventDefault();
   });
@@ -74,6 +92,7 @@ if (!app.requestSingleInstanceLock()) {
 } else {
   process.on("uncaughtException", (e) => console.error("uncaught", e));
   app.whenReady().then(() => {
+    powerSaveBlocker.start("prevent-display-sleep");
     createWindow();
     // Staff exit: Ctrl+Shift+Q
     globalShortcut.register("CommandOrControl+Shift+Q", () => app.quit());

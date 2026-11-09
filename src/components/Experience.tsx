@@ -73,6 +73,38 @@ export default function Experience() {
     };
   }, [stage]);
 
+  const goTo = useCallback((next: Stage) => {
+    clearTimeout(timer.current);
+    setLayers((prev) => [prev[prev.length - 1], next]);
+    timer.current = setTimeout(() => setLayers([next]), FADE_MS + 100);
+  }, []);
+
+  // Kiosk only: an abandoned end screen returns to the start, and the page reloads itself hourly
+  // (while idle on the start screen) so a long run never accumulates problems.
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_KIOSK) return;
+    let lastTouch = Date.now();
+    const touch = () => (lastTouch = Date.now());
+    window.addEventListener("pointerdown", touch);
+    const id = setInterval(() => {
+      const idle = Date.now() - lastTouch > 30_000;
+      if (stage === "damaged" && idle && performance.now() > 60 * 60 * 1000) location.reload();
+    }, 10_000);
+    const back =
+      stage === "rewind" && rewindDone
+        ? setTimeout(() => {
+            stopPart2();
+            goTo("damaged");
+            void startAmbient();
+          }, 60_000)
+        : undefined;
+    return () => {
+      window.removeEventListener("pointerdown", touch);
+      clearInterval(id);
+      clearTimeout(back);
+    };
+  }, [stage, rewindDone, goTo]);
+
   useEffect(() => {
     const onChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", onChange);
@@ -85,12 +117,6 @@ export default function Experience() {
   const enterFullscreen = () => {
     document.documentElement.requestFullscreen?.().catch(() => {});
   };
-
-  const goTo = useCallback((next: Stage) => {
-    clearTimeout(timer.current);
-    setLayers((prev) => [prev[prev.length - 1], next]);
-    timer.current = setTimeout(() => setLayers([next]), FADE_MS + 100);
-  }, []);
 
   const goRewind = () => {
     stopAmbient();
